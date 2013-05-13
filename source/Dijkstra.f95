@@ -62,3 +62,25 @@ program dijkstra
       end do
       
 end
+
+
+DO
+	    read(nunitr,'(a)', iostat=ios) line 
+	    READ(1, '(A)', IOSTAT=controle) conteudo
+	    IF (controle < 0) EXIT
+	    lenstr=len(conteudo)
+	    do i=1, lenstr
+           ch=conteudo(i:i)
+           if(ch == ' ') then
+               WRITE(*, *) 'ESPACO'
+           ELSE if (ch == '\n') then
+               WRITE(*, *) 'TERMINOU'
+               EXIT
+           ELSE
+               WRITE(*, *) ch
+           end if
+        end do
+	    tamanho = lenstr
+	    WRITE(*, *) conteudo
+        EXIT
+	END DO
