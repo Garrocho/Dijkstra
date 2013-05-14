@@ -1,9 +1,9 @@
 program Dijkistra
     
-    type elemento
+    type no
         integer :: anterior !refere ao nodo anterior que está no caminho mais curto
         integer :: distancia !distância da origem até o nodoatual
-        character*14 :: situacao !recebe os valores "processado" e "nao_processado"
+        character*14 :: proc !recebe os valores "proc" e "nao_proc"
     end type        
 
     integer, dimension(:,:), allocatable:: matriz !matriz que será alocada dinâmicamente na memória
@@ -15,10 +15,9 @@ program Dijkistra
     character*2048 :: l !variável que receberá o conteúdo lido de cada linha do arquivo
     integer:: linha, coluna, erro, fim_arquivo, pos1, pos2, n, aux, origem, destino, minimo, indice, tam, pos = 1
     CHARACTER (len=32) :: arg
-    type (elemento), dimension(:), allocatable:: caminho_curto !vetor dinâmico que receberá os nodos que compõe o caminho mais curto
+    type (no), dimension(:), allocatable:: caminho_curto !vetor dinâmico que receberá os nodos que compõe o caminho mais curto
     
     tam = IARGC()
-    WRITE (*, *) tam
     IF (tam == 3) THEN
         CALL GETARG(1, arg)
         READ(arg(pos:), '(A)') NOME_ARQUIVO
@@ -26,6 +25,9 @@ program Dijkistra
         READ(arg(pos:), '(i10)') origem
         CALL GETARG(3, arg)
         READ(arg(pos:), '(i10)') destino
+    ELSE
+        PRINT*, 'Argumentos Inválidos... <Endereço da Matriz> <Nó de Origem> <Nó de Destino>'
+        STOP
     END IF
     
     WRITE (*, *) NOME_ARQUIVO
@@ -88,12 +90,12 @@ program Dijkistra
     	if (indice > MAXIMO) exit 
         caminho_curto(indice)%anterior = -1
         caminho_curto(indice)%distancia = INFINITO
-        caminho_curto(indice)%situacao = 'nao_processado'
+        caminho_curto(indice)%proc = 'nao_proc'
         indice = indice + 1
     end do
     
     caminho_curto(origem)%distancia = 0
-    caminho_curto(origem)%situacao = 'processado'
+    caminho_curto(origem)%proc = 'proc'
     
     ! --> Cálculo do caminho mais curto
 
@@ -113,8 +115,8 @@ program Dijkistra
     	
 			if(indice > tamanho) exit
 			
-			!verifica se o nodo atual não é o nodo de origem ou se o nodo atual ainda não foi processado
-			if ((matriz(aux,indice) /= INFINITO).and.(matriz(aux,indice) /= 0).and.(caminho_curto(indice)%situacao == 'nao_processado')) then
+			!verifica se o nodo atual não é o nodo de origem ou se o nodo atual ainda não foi proc
+			if ((matriz(aux,indice) /= INFINITO).and.(matriz(aux,indice) /= 0).and.(caminho_curto(indice)%proc == 'nao_proc')) then
 				!verifica se a distância do nodo até a origem é maior que a distância de nodo vizinho + a distância
 				!entre o nodo atual até o nodo anterior
 				if (caminho_curto(aux)%distancia + matriz(aux,indice) < caminho_curto(indice)%distancia) then
@@ -132,14 +134,14 @@ program Dijkistra
     	do !3
     		
     		if(indice > tamanho) exit
-    		!procura o nodo com menor distância para marcá-lo como processado
-    		if( (caminho_curto(indice)%situacao == 'nao_processado') .and. ((caminho_curto(indice)%distancia < minimo)) ) then
+    		!procura o nodo com menor distância para marcá-lo como proc
+    		if( (caminho_curto(indice)%proc == 'nao_proc') .and. ((caminho_curto(indice)%distancia < minimo)) ) then
     			minimo = caminho_curto(indice)%distancia
     			aux = indice
     		end if
     		indice = indice + 1
     	end do !3
-    	caminho_curto(aux)%situacao = 'processado'
+    	caminho_curto(aux)%proc = 'proc'
 
     end do !1
         
