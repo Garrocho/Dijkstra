@@ -10,11 +10,27 @@ program Dijkistra
     integer, parameter :: arq = 10 !parâmetro que define um nome (arq) para o valor 10 que irá referênciar o arquivo em disco
     integer, parameter :: INFINITO = 1000000 !valor definido como infinito
     integer, parameter :: MAXIMO = 4096 !máximo de nodos que o grafo de distâncias pode possuir
-    character*255, parameter :: NOME_ARQUIVO = 'matriz-212.dat' !paâmetro que recebe a localização do arquivo de rotas no disco
+    character*255 :: NOME_ARQUIVO = 'matriz-212.dat' !paâmetro que recebe a localização do arquivo de rotas no disco
     integer :: tamanho !tamanho da matriz, que será obtida ao ler a primeira linha do arquivo em disco
     character*2048 :: l !variável que receberá o conteúdo lido de cada linha do arquivo
-    integer:: linha, coluna, erro, fim_arquivo, pos1, pos2, n, aux, origem, destino, minimo, indice !variáveis de controle
+    integer:: linha, coluna, erro, fim_arquivo, pos1, pos2, n, aux, origem, destino, minimo, indice, tam, pos = 1
+    CHARACTER (len=32) :: arg
     type (elemento), dimension(:), allocatable:: caminho_curto !vetor dinâmico que receberá os nodos que compõe o caminho mais curto
+    
+    tam = IARGC()
+    WRITE (*, *) tam
+    IF (tam == 3) THEN
+        CALL GETARG(1, arg)
+        READ(arg(pos:), '(A)') NOME_ARQUIVO
+        CALL GETARG(2, arg)
+        READ(arg(pos:), '(i10)') origem
+        CALL GETARG(3, arg)
+        READ(arg(pos:), '(i10)') destino
+    END IF
+    
+    WRITE (*, *) NOME_ARQUIVO
+    WRITE (*, *) origem
+    WRITE (*, *) destino
 
     ! Abertura do arquivo contendo as distâncias
     open(unit=arq, file=NOME_ARQUIVO, status='old', iostat=erro, access='sequential')
@@ -74,28 +90,6 @@ program Dijkistra
         caminho_curto(indice)%distancia = INFINITO
         caminho_curto(indice)%situacao = 'nao_processado'
         indice = indice + 1
-    end do
-    
-    do
-        print *, 'Forneça o roteador de origem (valor da linha ou coluna que ele se encontra na matriz de distâncias):'
-        read(*,*) origem
-        if ( (origem > tamanho) .or. (origem < 1) ) then
-            print *, ''
-            print *, ' Forneça um valor válido!'
-        else
-            print *, ''
-            print *, 'Forneça o roteador de destino (valor da linha ou coluna que ele se encontra na matriz de distâncias):'
-            read(*,*) destino
-            if ( (destino > tamanho) .or. (destino < 1) ) then
-                print *, ''
-                print *, ' Forneça um valor válido!'
-            else
-                exit
-            end if
-            
-            exit
-        end if
-        
     end do
     
     caminho_curto(origem)%distancia = 0
