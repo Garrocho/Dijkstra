@@ -1,12 +1,15 @@
+! @author: Charles Tim Batista Garrocho
+! @contact: charles.garrocho@gmail.com
+! @copyright: (C) 2013 Fortran Software Open Source
+
 program Dijkistra
 
-    INTEGER:: linha, coluna, verifica, pos1, pos2, corrente, origem, destino, menor_distancia, indice, tamanho
-    INTEGER, DIMENSION(:,:), ALLOCATABLE:: MatrizAdj
-    INTEGER, PARAMETER :: INF=2**30
+    INTEGER:: INF=2**30, origem, destino, corrente, tamanho, menor_distancia, linha, coluna, verifica, cont, pos, pos_espaco
+    INTEGER, DIMENSION(:,:), ALLOCATABLE:: matrizAdj
     CHARACTER (LEN=32) :: argumento, arquivo
     CHARACTER*1200 :: dados_linha
     TYPE no
-        INTEGER :: no_anterior, distancia, processado
+        INTEGER :: antecessor, distancia, processado
     END TYPE
     TYPE (no), DIMENSION(:), ALLOCATABLE :: caminho
 
@@ -27,7 +30,7 @@ program Dijkistra
 
     IF (verifica == 0) THEN
 
-        ALLOCATE(MatrizAdj(500, 500))
+        ALLOCATE(matrizAdj(500, 500))
 
         linha = 1
         coluna = 1
@@ -36,25 +39,25 @@ program Dijkistra
             READ(12,'(A)', IOSTAT=verifica) dados_linha
             IF (verifica < 0) EXIT
 
-            pos1 = 1
+            pos = 1
             tamanho = 1
 
             DO
-                IF (dados_linha(pos1+1:) == '' .AND. dados_linha(pos1+2:) == '') EXIT
+                IF ((dados_linha(pos+1:) == '').AND.(dados_linha(pos+2:) == '')) EXIT
 
-                pos2 = index(dados_linha(pos1:), ' ')
+                pos_espaco = index(dados_linha(pos:), ' ')
 
-                IF (pos2 == 0) THEN
-                    READ(dados_linha(pos1:), '(i10)') MatrizAdj(linha, tamanho)
+                IF (pos_espaco == 0) THEN
+                    READ(dados_linha(pos:), '(i10)') matrizAdj(linha, tamanho)
                     EXIT
                 END IF
 
-                READ(dados_linha(pos1:pos1+pos2-2), '(i10)') MatrizAdj(linha, tamanho)
+                READ(dados_linha(pos:pos+pos_espaco-2), '(i10)') matrizAdj(linha, tamanho)
                 tamanho = tamanho + 1
-                pos1 = pos2 + pos1
-             END DO
+                pos = pos_espaco + pos
+            END DO
 
-             linha = linha + 1
+            linha = linha + 1
         END DO
 
     ELSE
@@ -63,8 +66,6 @@ program Dijkistra
     END IF
 
     CLOSE(12)
-    
-    WRITE(*, *) tamanho
 
     IF ((origem > tamanho).OR.(origem < 1).OR.(destino > tamanho).OR.(destino < 1)) THEN
         PRINT *, 'Nó de Origem ou Destino Inválido...  '
@@ -73,10 +74,10 @@ program Dijkistra
 
     ALLOCATE(caminho(tamanho))
 
-    DO indice = 1, tamanho
-        caminho(indice)%no_anterior = -1
-        caminho(indice)%distancia = INF
-        caminho(indice)%processado = 0
+    DO cont = 1, tamanho
+        caminho(cont)%antecessor = -1
+        caminho(cont)%distancia = INF
+        caminho(cont)%processado = 0
     END DO
 
     caminho(origem)%distancia = 0
@@ -88,11 +89,11 @@ program Dijkistra
 
     DO
     	IF (corrente == destino) EXIT
-    	DO indice = 1, tamanho
-			IF ((MatrizAdj(corrente, indice) /= INF).AND.(MatrizAdj(corrente, indice) /= 0).AND.(caminho(indice)%processado == 0)) THEN
-				IF (caminho(corrente)%distancia + MatrizAdj(corrente, indice) < caminho(indice)%distancia) THEN
-					caminho(indice)%no_anterior = corrente
-					caminho(indice)%distancia = caminho(corrente)%distancia + MatrizAdj(corrente, indice)
+    	DO cont = 1, tamanho
+			IF ((matrizAdj(corrente, cont) /= INF).AND.(matrizAdj(corrente, cont) /= 0).AND.(caminho(cont)%processado == 0)) THEN
+				IF (caminho(corrente)%distancia + matrizAdj(corrente, cont) < caminho(cont)%distancia) THEN
+					caminho(cont)%antecessor = corrente
+					caminho(cont)%distancia = caminho(corrente)%distancia + matrizAdj(corrente, cont)
 				END IF
 			END IF
     	END DO
@@ -100,26 +101,27 @@ program Dijkistra
     	corrente = 1
     	menor_distancia = INF
 
-    	DO indice = 1, tamanho
-    		IF ((caminho(indice)%processado == 0) .AND. ((caminho(indice)%distancia < menor_distancia)) ) THEN
-    			menor_distancia = caminho(indice)%distancia
-    			corrente = indice
+    	DO cont = 1, tamanho
+    		IF ((caminho(cont)%processado == 0).AND.((caminho(cont)%distancia < menor_distancia))) THEN
+    			menor_distancia = caminho(cont)%distancia
+    			corrente = cont
     		END IF
     	END DO
     	caminho(corrente)%processado = 1
     END DO
-
-    PRINT *, 'caminho mais curto: '
-    indice = destino
-    PRINT *, destino
+    
+    DEALLOCATE(matrizAdj)
+    
+    PRINT *, 'Origem: ', origem
+    PRINT *, 'Destino: ', destino 
+    PRINT *, 'Custo: ', caminho(destino)%distancia
+    PRINT *, 'Caminho: '
 
     DO
-        IF (indice == origem) EXIT
-        PRINT *, caminho(indice)%no_anterior
-        indice = caminho(indice)%no_anterior
+        IF (destino == origem) EXIT
+        PRINT *, caminho(destino)%antecessor
+        destino = caminho(destino)%antecessor
     END DO
 
-    PRINT *, 'distanciaância: ', caminho(destino)%distancia
-    DEALLOCATE(MatrizAdj)
     DEALLOCATE(caminho)
 END
