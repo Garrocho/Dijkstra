@@ -4,8 +4,8 @@
 
 program Dijkistra
 
-    INTEGER:: INF=2**30, origem, destino, corrente, tamanho, menor_distancia, linha, coluna, verifica, cont, pos, pos_espaco
-    INTEGER, DIMENSION(:,:), ALLOCATABLE:: matrizAdj
+    INTEGER :: INF=2**30, origem, destino, corrente, tamanho, menor_distancia, linha, coluna, verifica, cont, pos, pos_espaco
+    INTEGER, DIMENSION(:, :), ALLOCATABLE :: matrizAdj
     CHARACTER (LEN=32) :: argumento, arquivo
     CHARACTER*1200 :: dados_linha
     TYPE no
@@ -46,12 +46,6 @@ program Dijkistra
                 IF ((dados_linha(pos+1:) == '').AND.(dados_linha(pos+2:) == '')) EXIT
 
                 pos_espaco = index(dados_linha(pos:), ' ')
-
-                IF (pos_espaco == 0) THEN
-                    READ(dados_linha(pos:), '(i10)') matrizAdj(linha, tamanho)
-                    EXIT
-                END IF
-
                 READ(dados_linha(pos:pos+pos_espaco-2), '(i10)') matrizAdj(linha, tamanho)
                 tamanho = tamanho + 1
                 pos = pos_espaco + pos
@@ -87,27 +81,28 @@ program Dijkistra
     linha = 1
     coluna = 1
 
-    DO
-    	IF (corrente == destino) EXIT
-    	DO cont = 1, tamanho
-			IF ((matrizAdj(corrente, cont) /= INF).AND.(matrizAdj(corrente, cont) /= 0).AND.(caminho(cont)%processado == 0)) THEN
-				IF (caminho(corrente)%distancia + matrizAdj(corrente, cont) < caminho(cont)%distancia) THEN
-					caminho(cont)%antecessor = corrente
-					caminho(cont)%distancia = caminho(corrente)%distancia + matrizAdj(corrente, cont)
-				END IF
-			END IF
-    	END DO
+   DO
+        menor_distancia = INF
+        IF (corrente == destino) EXIT
 
-    	corrente = 1
-    	menor_distancia = INF
+        DO cont = 1, tamanho
+            IF ((matrizAdj(corrente, cont) /= INF).AND.(matrizAdj(corrente, cont) /= 0).AND.(caminho(cont)%processado /= 1)) THEN
+                IF (caminho(corrente)%distancia + matrizAdj(corrente, cont) < caminho(cont)%distancia) THEN
+                    caminho(cont)%antecessor = corrente
+                    caminho(cont)%distancia = caminho(corrente)%distancia + matrizAdj(corrente, cont)
+                END IF
+            END IF
+        END DO
 
-    	DO cont = 1, tamanho
-    		IF ((caminho(cont)%processado == 0).AND.((caminho(cont)%distancia < menor_distancia))) THEN
-    			menor_distancia = caminho(cont)%distancia
-    			corrente = cont
-    		END IF
-    	END DO
-    	caminho(corrente)%processado = 1
+        corrente = 1
+
+        DO cont = 1, tamanho
+            IF ((caminho(cont)%processado == 0).AND.((caminho(cont)%distancia < menor_distancia))) THEN
+                menor_distancia = caminho(cont)%distancia
+                corrente = cont
+            END IF
+        END DO
+        caminho(corrente)%processado = 1
     END DO
     
     DEALLOCATE(matrizAdj)
