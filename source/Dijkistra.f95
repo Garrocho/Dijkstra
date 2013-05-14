@@ -7,7 +7,7 @@ program Dijkistra
     INTEGER :: INF=2**30, origem, destino, corrente, tamanho, menor_distancia, linha, coluna, verifica, cont, pos, pos_espaco
     INTEGER, DIMENSION(:, :), ALLOCATABLE :: matrizAdj
     CHARACTER (LEN=32) :: argumento, arquivo
-    CHARACTER*1200 :: dados_linha
+    CHARACTER*2000 :: dados_linha
     TYPE no
         INTEGER :: antecessor, distancia, processado
     END TYPE
@@ -30,7 +30,7 @@ program Dijkistra
 
     IF (verifica == 0) THEN
 
-        ALLOCATE(matrizAdj(500, 500))
+        ALLOCATE(matrizAdj(1000, 1000))
 
         linha = 1
         coluna = 1
