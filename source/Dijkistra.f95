@@ -7,20 +7,18 @@ program Dijkistra
     end type        
 
     integer, dimension(:,:), allocatable:: matriz !matriz que será alocada dinâmicamente na memória
-    integer, parameter :: arq = 10 !parâmetro que define um nome (arq) para o valor 10 que irá referênciar o arquivo em disco
     integer, parameter :: INFINITO = 1000000 !valor definido como infinito
     integer, parameter :: MAXIMO = 4096 !máximo de nodos que o grafo de distâncias pode possuir
-    character*255 :: NOME_ARQUIVO = 'matriz-212.dat' !paâmetro que recebe a localização do arquivo de rotas no disco
     integer :: tamanho !tamanho da matriz, que será obtida ao ler a primeira linha do arquivo em disco
     character*2048 :: l !variável que receberá o conteúdo lido de cada linha do arquivo
     integer:: linha, coluna, erro, fim_arquivo, pos1, pos2, n, aux, origem, destino, minimo, indice, tam, pos = 1
-    CHARACTER (len=32) :: arg
+    CHARACTER (len=32) :: arg, arq
     type (no), dimension(:), allocatable:: caminho_curto !vetor dinâmico que receberá os nodos que compõe o caminho mais curto
     
     tam = IARGC()
     IF (tam == 3) THEN
         CALL GETARG(1, arg)
-        READ(arg(pos:), '(A)') NOME_ARQUIVO
+        READ(arg(pos:), '(A)') arq
         CALL GETARG(2, arg)
         READ(arg(pos:), '(i10)') origem
         CALL GETARG(3, arg)
@@ -29,13 +27,8 @@ program Dijkistra
         PRINT*, 'Argumentos Inválidos... <Endereço da Matriz> <Nó de Origem> <Nó de Destino>'
         STOP
     END IF
-    
-    WRITE (*, *) NOME_ARQUIVO
-    WRITE (*, *) origem
-    WRITE (*, *) destino
 
-    ! Abertura do arquivo contendo as distâncias
-    open(unit=arq, file=NOME_ARQUIVO, status='old', iostat=erro, access='sequential')
+    open(unit=12, file=arq, iostat=erro)
     
     ! Verifica se o arquivo foi aberto comsucesso
     if (erro == 0) then
@@ -48,7 +41,7 @@ program Dijkistra
         ! faz a leituta do arquivo para obter os valores que preencherão a matriz
         
         do !1
-            read(arq,'(A)', iostat=fim_arquivo) l
+            read(12,'(A)', iostat=fim_arquivo) l
             if (fim_arquivo < 0) then
                 exit
             end if
@@ -76,10 +69,8 @@ program Dijkistra
         
         tamanho = n
 
-    else !se o arquivo não for aberto com sucesso
+    else
         print *,'Erro na abertura do arquivo!'
-        print *,''
-        print *,''
         stop
     end if
     
@@ -98,7 +89,6 @@ program Dijkistra
     caminho_curto(origem)%proc = 'proc'
     
     ! --> Cálculo do caminho mais curto
-
     aux = origem
     linha = 1
     coluna = 1
@@ -144,24 +134,7 @@ program Dijkistra
     	caminho_curto(aux)%proc = 'proc'
 
     end do !1
-        
-    !imprime uma tabela com todos os caminhos mais curtos de qualquer nodoaté o nodo de origem
-    linha = 1
-    print *, 'Tamanho da matriz dedistãncias: ', tamanho, 'x', tamanho
-    print *, 'Nodo de origem: ', origem
-    print *, '------------------------------------------------------------------'
-    print *, '| Nodo atual    | Nodo anterior | Distância até o nodo de origem |'
-    print *, '------------------------------------------------------------------'
-    
-    do
-    	if(linha > tamanho) exit
-    	print *, '| ', linha, ' | ', caminho_curto(linha)%anterior , ' | ', caminho_curto(linha)%distancia
-  	    print *, '------------------------------------------------------------------'
-    	linha = linha + 1
-    end do
-    
-    !imprime o menor caminho do nodo de origem até o nodo de destino
-    print *, ''
+
     print *, 'Caminho mais curto do nodo de origem até o nodo de destino: '
 
     linha = destino
@@ -172,10 +145,8 @@ program Dijkistra
         linha = caminho_curto(linha)%anterior
     end do
     print *, 'Distância = ', caminho_curto(destino)%distancia
-    !fecha o arquivo
-    close(arq)
-    
-    !libera o espaço de memória ocupado pelos ponterios
+
+    close(12)
     deallocate(matriz)
     deallocate(caminho_curto)
 end
