@@ -1,6 +1,6 @@
 program Dijkistra
     
-    INTEGER, DIMENSION(:,:), ALLOCATABLE:: matriz !matriz que será alocada dinâmicamente na memória
+    INTEGER, DIMENSION(:,:), ALLOCATABLE:: matriz
     INTEGER, PARAMETER :: INFINITO = 1000000, MAXIMO = 4096
     CHARACTER*2048 :: linha
     INTEGER:: l, coluna, erro, fim_arquivo, pos1, pos2, n, aux, origem, destino, minimo, indice, tam, tamanho, pos = 1
@@ -11,7 +11,7 @@ program Dijkistra
         CHARACTER*15 :: proc
     END TYPE
     
-    TYPE (no), DIMENSION(:), ALLOCATABLE :: caminho_curto
+    TYPE (no), DIMENSION(:), ALLOCATABLE :: caminho
     
     tam = IARGC()
     IF (tam == 3) THEN
@@ -73,16 +73,16 @@ program Dijkistra
     end if
     
     ! inicialização do vetor de caminhos mais curtos com valores default
-    allocate(caminho_curto(MAXIMO))
+    allocate(caminho(MAXIMO))
 
     DO indice = 1, MAXIMO 
-        caminho_curto(indice)%anterior = -1
-        caminho_curto(indice)%distancia = INFINITO
-        caminho_curto(indice)%proc = '0'
+        caminho(indice)%anterior = -1
+        caminho(indice)%distancia = INFINITO
+        caminho(indice)%proc = '0'
     END DO
     
-    caminho_curto(origem)%distancia = 0
-    caminho_curto(origem)%proc = '1'
+    caminho(origem)%distancia = 0
+    caminho(origem)%proc = '1'
     
     ! --> Cálculo do caminho mais curto
     aux = origem
@@ -92,57 +92,57 @@ program Dijkistra
     pos2 = 1
     
     !procura um caminho melhor para chegar até o nodo que está representado na variável "aux"
-    do !1
+    DO !1
     
-    	if (aux == destino) exit
+    	IF (aux == destino) EXIT
     	
     	indice = 1
-    	do !2
+    	DO !2
     	
-			if(indice > tamanho) exit
+			IF (indice > tamanho) EXIT
 			
 			!verifica se o nodo atual não é o nodo de origem ou se o nodo atual ainda não foi proc
-			if ((matriz(aux,indice) /= INFINITO).and.(matriz(aux,indice) /= 0).and.(caminho_curto(indice)%proc == '0')) then
+			IF ((matriz(aux,indice) /= INFINITO).AND.(matriz(aux,indice) /= 0).AND.(caminho(indice)%proc == '0')) THEN
 				!verifica se a distância do nodo até a origem é maior que a distância de nodo vizinho + a distância
 				!entre o nodo atual até o nodo anterior
-				if (caminho_curto(aux)%distancia + matriz(aux,indice) < caminho_curto(indice)%distancia) then
-					caminho_curto(indice)%anterior = aux
-					caminho_curto(indice)%distancia = caminho_curto(aux)%distancia + matriz(aux,indice)
-				end if
-			end if
+				IF (caminho(aux)%distancia + matriz(aux,indice) < caminho(indice)%distancia) THEN
+					caminho(indice)%anterior = aux
+					caminho(indice)%distancia = caminho(aux)%distancia + matriz(aux,indice)
+				END IF
+			END IF
 			indice = indice + 1
 			
-    	end do !2
+    	END DO !2
     	
     	aux = 1
     	minimo = INFINITO
     	indice = 1
-    	do !3
+    	DO !3
     		
-    		if(indice > tamanho) exit
+    		IF (indice > tamanho) EXIT
     		!procura o nodo com menor distância para marcá-lo como proc
-    		if( (caminho_curto(indice)%proc == '0') .and. ((caminho_curto(indice)%distancia < minimo)) ) then
-    			minimo = caminho_curto(indice)%distancia
+    		IF ((caminho(indice)%proc == '0') .AND. ((caminho(indice)%distancia < minimo)) ) THEN
+    			minimo = caminho(indice)%distancia
     			aux = indice
-    		end if
+    		END IF
     		indice = indice + 1
-    	end do !3
-    	caminho_curto(aux)%proc = '1'
+    	END DO !3
+    	caminho(aux)%proc = '1'
 
-    end do !1
+    END DO !1
 
-    print *, 'Caminho mais curto do nodo de origem até o nodo de destino: '
+    PRINT *, 'Caminho mais curto do nodo de origem até o nodo de destino: '
 
     l = destino
-    print *, '--> ', destino
-    do
-        if (l == origem) exit
-        print *, '--> ', caminho_curto(l)%anterior
-        l = caminho_curto(l)%anterior
-    end do
-    print *, 'Distância = ', caminho_curto(destino)%distancia
+    PRINT *, destino
+    DO
+        IF (l == origem) EXIT
+        PRINT *, caminho(l)%anterior
+        l = caminho(l)%anterior
+    END DO
+    PRINT *, 'Distância = ', caminho(destino)%distancia
 
-    close(12)
-    deallocate(matriz)
-    deallocate(caminho_curto)
-end
+    CLOSE(12)
+    DEALLOCATE(matriz)
+    DEALLOCATE(caminho)
+END
