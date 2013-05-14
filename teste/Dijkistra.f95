@@ -1,30 +1,11 @@
 program Dijkistra
     
-    ! --> Programa Dijkistra.f95
-    !
-    ! --> Este programa implementa o algorítimo de dijkistra para o cálculo do caminho mais curto
-    ! entre os elementos de um grafo (formado por roteadores em uma rede), utilizando a linguegem 
-    ! de programação Fortran, versão 95;
-    !
-    !--> Instituto Federal de Educação, Ciência e Tecnologia do sudeste de Minas Gerais
-    !    Câmpus Barbacena
-    !
-    !--> Disciplina: TCP-IP e Rotemaento
-    !--> Professor: Herlon Ayres Camargo
-    !--> Aluno: Paulo Vitor Francisco
-    !--> Barbacena, 25 de Abril de 2013
-    
-
-    ! Estrutura referente aos nodos que serão visitados
     type elemento
         integer :: anterior !refere ao nodo anterior que está no caminho mais curto
         integer :: distancia !distância da origem até o nodoatual
         character*14 :: situacao !recebe os valores "processado" e "nao_processado"
     end type        
-    
-    ! Declaração de Variáveis
-    !integer, parameter:: dp=SELECTED_REAL_KIND(15, 300) !define o parâmetro dp para indicar a quantidade de casas decimais de valores reais
-    !real(kind=dp), dimension(:,:), allocatable:: matriz !matriz que será alocada dinâmicamente na memória
+
     integer, dimension(:,:), allocatable:: matriz !matriz que será alocada dinâmicamente na memória
     integer, parameter :: arq = 10 !parâmetro que define um nome (arq) para o valor 10 que irá referênciar o arquivo em disco
     integer, parameter :: INFINITO = 1000000 !valor definido como infinito
@@ -32,22 +13,8 @@ program Dijkistra
     character*255, parameter :: NOME_ARQUIVO = 'matriz-212.dat' !paâmetro que recebe a localização do arquivo de rotas no disco
     integer :: tamanho !tamanho da matriz, que será obtida ao ler a primeira linha do arquivo em disco
     character*2048 :: l !variável que receberá o conteúdo lido de cada linha do arquivo
-    !integer :: tam !variável que receberá o tamnho da linha lida do arquivo
     integer:: linha, coluna, erro, fim_arquivo, pos1, pos2, n, aux, origem, destino, minimo, indice !variáveis de controle
     type (elemento), dimension(:), allocatable:: caminho_curto !vetor dinâmico que receberá os nodos que compõe o caminho mais curto
-    
-    
-    ! >>>>> Início do programa principal <<<<<
-    
-    call system('clear')
-    print *, ''
-    print *, ''
-    print *, '|---------------------------------------------------------------|'
-    print *, '| Algorítimo de Djikstra - Linguagem Fortran 95                 |'
-    print *, '| Disciplina de TCP e Roteamento - IFET Campus Barbacena - 2013 |'
-    print *, '|---------------------------------------------------------------|'    
-    print *, ''
-    print *, ''
 
     ! Abertura do arquivo contendo as distâncias
     open(unit=arq, file=NOME_ARQUIVO, status='old', iostat=erro, access='sequential')
