@@ -1,19 +1,17 @@
 program Dijkistra
     
-    type no
-        integer :: anterior !refere ao nodo anterior que está no caminho mais curto
-        integer :: distancia !distância da origem até o nodoatual
-        character*14 :: proc !recebe os valores "proc" e "nao_proc"
-    end type        
-
-    integer, dimension(:,:), allocatable:: matriz !matriz que será alocada dinâmicamente na memória
-    integer, parameter :: INFINITO = 1000000 !valor definido como infinito
-    integer, parameter :: MAXIMO = 4096 !máximo de nodos que o grafo de distâncias pode possuir
-    integer :: tamanho !tamanho da matriz, que será obtida ao ler a primeira linha do arquivo em disco
-    character*2048 :: l !variável que receberá o conteúdo lido de cada linha do arquivo
-    integer:: linha, coluna, erro, fim_arquivo, pos1, pos2, n, aux, origem, destino, minimo, indice, tam, pos = 1
-    CHARACTER (len=32) :: arg, arq
-    type (no), dimension(:), allocatable:: caminho_curto !vetor dinâmico que receberá os nodos que compõe o caminho mais curto
+    INTEGER, DIMENSION(:,:), ALLOCATABLE:: matriz !matriz que será alocada dinâmicamente na memória
+    INTEGER, PARAMETER :: INFINITO = 1000000, MAXIMO = 4096
+    CHARACTER*2048 :: linha
+    INTEGER:: l, coluna, erro, fim_arquivo, pos1, pos2, n, aux, origem, destino, minimo, indice, tam, tamanho, pos = 1
+    CHARACTER (LEN=32) :: arg, arq
+    
+    TYPE no
+        INTEGER :: anterior, distancia
+        CHARACTER*15 :: proc
+    END TYPE
+    
+    TYPE (no), DIMENSION(:), ALLOCATABLE :: caminho_curto
     
     tam = IARGC()
     IF (tam == 3) THEN
@@ -31,17 +29,17 @@ program Dijkistra
     open(unit=12, file=arq, iostat=erro)
     
     ! Verifica se o arquivo foi aberto comsucesso
-    if (erro == 0) then
+    IF (erro == 0) THEN
 
         ! Aloca um espaço na memória para uma matriz dinâmica(ponteiro para uma matriz de valores inteiros)
-        allocate(matriz(MAXIMO,MAXIMO))
+        ALLOCATE(matriz(MAXIMO,MAXIMO))
         
-        linha = 1
+        l = 1
         coluna = 1
         ! faz a leituta do arquivo para obter os valores que preencherão a matriz
         
         do !1
-            read(12,'(A)', iostat=fim_arquivo) l
+            read(12,'(A)', iostat=fim_arquivo) linha
             if (fim_arquivo < 0) then
                 exit
             end if
@@ -51,20 +49,20 @@ program Dijkistra
             n = 1
             
             do !2
-                pos2 = index(l(pos1:), ' ')
-                if (l(pos1+1:) == '' .and. l(pos1+2:) == '') exit
+                pos2 = index(linha(pos1:), ' ')
+                if (linha(pos1+1:) == '' .and. linha(pos1+2:) == '') exit
                 if (pos2 == 0) then
-                    read(l(pos1:), '(i10)') matriz(linha,n)
+                    read(linha(pos1:), '(i10)') matriz(l,n)
                     exit
                 end if
                 
                 ! armazena o valor extraido da string para a matriz de inteiros.
-                read(l(pos1:pos1+pos2-2), '(i10)') matriz(linha,n)
+                read(linha(pos1:pos1+pos2-2), '(i10)') matriz(l,n)
                 n = n + 1
                 pos1 = pos2+pos1
              end do !2
 
-             linha = linha + 1
+             l = l + 1
         end do !1
         
         tamanho = n
@@ -90,7 +88,7 @@ program Dijkistra
     
     ! --> Cálculo do caminho mais curto
     aux = origem
-    linha = 1
+    l = 1
     coluna = 1
     pos1 = 1
     pos2 = 1
@@ -137,12 +135,12 @@ program Dijkistra
 
     print *, 'Caminho mais curto do nodo de origem até o nodo de destino: '
 
-    linha = destino
+    l = destino
     print *, '--> ', destino
     do
-        if (linha == origem) exit
-        print *, '--> ', caminho_curto(linha)%anterior
-        linha = caminho_curto(linha)%anterior
+        if (l == origem) exit
+        print *, '--> ', caminho_curto(l)%anterior
+        l = caminho_curto(l)%anterior
     end do
     print *, 'Distância = ', caminho_curto(destino)%distancia
 
