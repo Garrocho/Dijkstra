@@ -1,140 +1,128 @@
 program Dijkistra
-    
-    INTEGER, DIMENSION(:,:), ALLOCATABLE:: matriz
-    INTEGER, PARAMETER :: INF=2**30, MAXIMO = 4096
-    CHARACTER*2048 :: linha
-    INTEGER:: l, coluna, erro, fim, pos1, pos2, n, aux, origem, destino, minimo, indice, tam, tamanho, pos = 1
-    CHARACTER (LEN=32) :: arg, arq
-    
+
+    INTEGER:: linha, coluna, verifica, pos1, pos2, corrente, origem, destino, menor_distancia, indice, tamanho
+    INTEGER, DIMENSION(:,:), ALLOCATABLE:: MatrizAdj
+    INTEGER, PARAMETER :: INF=2**30, MAXI = 500
+    CHARACTER (LEN=32) :: argumento, arquivo
+    CHARACTER*1200 :: dados_linha
+
     TYPE no
         INTEGER :: anterior, distancia
-        CHARACTER*15 :: proc
+        CHARACTER*15 :: processado
     END TYPE
-    
+
     TYPE (no), DIMENSION(:), ALLOCATABLE :: caminho
     
-    tam = IARGC()
-    IF (tam == 3) THEN
-        CALL GETARG(1, arg)
-        READ(arg(pos:), '(A)') arq
-        CALL GETARG(2, arg)
-        READ(arg(pos:), '(i10)') origem
-        CALL GETARG(3, arg)
-        READ(arg(pos:), '(i10)') destino
+    tamanho = IARGC()
+    IF (tamanho == 3) THEN
+        CALL GETARG(1, argumento)
+        READ(argumento(1:), '(A)') arquivo
+        CALL GETARG(2, argumento)
+        READ(argumento(1:), '(i10)') origem
+        CALL GETARG(3, argumento)
+        READ(argumento(1:), '(i10)') destino
     ELSE
-        PRINT*, 'Argumentos Inválidos... <Endereço da Matriz> <Nó de Origem> <Nó de Destino>'
+        PRINT*, 'Argumentos Inválidos... <Endereço da MatrizAdj> <Nó de Origem> <Nó de Destino>'
         STOP
     END IF
 
-    OPEN(UNIT=12, FILE=arq, IOSTAT=erro)
-    
-    IF (erro == 0) THEN
+    OPEN(UNIT=12, FILE=arquivo, IOSTAT=verifica)
 
-        ALLOCATE(matriz(MAXIMO,MAXIMO))
-        
-        l = 1
+    IF (verifica == 0) THEN
+
+        ALLOCATE(MatrizAdj(MAXI,MAXI))
+
+        linha = 1
         coluna = 1
-        
+
         DO
-            READ(12,'(A)', IOSTAT=fim) linha
-            IF (fim < 0) THEN
-                EXIT
-            END IF
-            
+            READ(12,'(A)', IOSTAT=verifica) dados_linha
+            IF (verifica < 0) EXIT
+
             pos1 = 1
-            n = 1
-            
+            tamanho = 1
+
             DO
-                pos2 = index(linha(pos1:), ' ')
-                IF (linha(pos1+1:) == '' .AND. linha(pos1+2:) == '') EXIT
+                IF (dados_linha(pos1+1:) == '' .AND. dados_linha(pos1+2:) == '') EXIT
+
+                pos2 = index(dados_linha(pos1:), ' ')
+
                 IF (pos2 == 0) THEN
-                    READ(linha(pos1:), '(i10)') matriz(l,n)
+                    READ(dados_linha(pos1:), '(i10)') MatrizAdj(linha, tamanho)
                     EXIT
                 END IF
-                
-                READ(linha(pos1:pos1+pos2-2), '(i10)') matriz(l,n)
-                n = n + 1
+
+                READ(dados_linha(pos1:pos1+pos2-2), '(i10)') MatrizAdj(linha, tamanho)
+                tamanho = tamanho + 1
                 pos1 = pos2+pos1
              END DO
 
-             l = l + 1
+             linha = linha + 1
         END DO
-        
-        tamanho = n
 
     ELSE
-        PRINT *,'Erro ao Abrir o arquivo ', arq
+        PRINT *,'Arquivo Inexistente...  ', arquivo
         STOP
     END IF
-    
-    CLOSE(12)
-    
-    ALLOCATE(caminho(MAXIMO))
 
-    DO indice = 1, MAXIMO 
+    CLOSE(12)
+
+    IF ((tamanho > origem).OR.(origem < 1).OR.(tamanho > destino).OR.(destino < 1)) THEN
+        PRINT *,'Nó de Origem ou Destino Inválido...  '
+        STOP
+    END IF
+
+    ALLOCATE(caminho(tamanho))
+
+    DO indice = 1, tamanho
         caminho(indice)%anterior = -1
         caminho(indice)%distancia = INF
-        caminho(indice)%proc = '0'
+        caminho(indice)%processado = '0'
     END DO
-    
+
     caminho(origem)%distancia = 0
-    caminho(origem)%proc = '1'
-    
-    aux = origem
-    l = 1
+    caminho(origem)%processado = '1'
+
+    corrente = origem
+    linha = 1
     coluna = 1
     pos1 = 1
     pos2 = 1
- 
-    DO
-    	IF (aux == destino) EXIT
 
-    	indice = 1
-    	DO
-    	
-			IF (indice > tamanho) EXIT
-			
-			!verifica se o nodo atual não é o nodo de origem ou se o nodo atual ainda não foi proc
-			IF ((matriz(aux,indice) /= INF).AND.(matriz(aux,indice) /= 0).AND.(caminho(indice)%proc == '0')) THEN
-				!verifica se a distância do nodo até a origem é maior que a distância de nodo vizinho + a distância
-				!entre o nodo atual até o nodo anterior
-				IF (caminho(aux)%distancia + matriz(aux,indice) < caminho(indice)%distancia) THEN
-					caminho(indice)%anterior = aux
-					caminho(indice)%distancia = caminho(aux)%distancia + matriz(aux,indice)
+    DO
+    	IF (corrente == destino) EXIT
+    	DO indice = 1, tamanho
+			IF ((MatrizAdj(corrente,indice) /= INF).AND.(MatrizAdj(corrente,indice) /= 0).AND.(caminho(indice)%processado == '0')) THEN
+				IF (caminho(corrente)%distancia + MatrizAdj(corrente,indice) < caminho(indice)%distancia) THEN
+					caminho(indice)%anterior = corrente
+					caminho(indice)%distancia = caminho(corrente)%distancia + MatrizAdj(corrente,indice)
 				END IF
 			END IF
-			indice = indice + 1
-			
     	END DO
-    	
-    	aux = 1
-    	minimo = INF
-    	indice = 1
-    	DO
-    		
-    		IF (indice > tamanho) EXIT
-    		!procura o nodo com menor distância para marcá-lo como proc
-    		IF ((caminho(indice)%proc == '0') .AND. ((caminho(indice)%distancia < minimo)) ) THEN
-    			minimo = caminho(indice)%distancia
-    			aux = indice
-    		END IF
-    		indice = indice + 1
-    	END DO
-    	caminho(aux)%proc = '1'
 
+    	corrente = 1
+    	menor_distancia = INF
+
+    	DO indice = 1, tamanho
+    		IF ((caminho(indice)%processado == '0') .AND. ((caminho(indice)%distancia < menor_distancia)) ) THEN
+    			menor_distancia = caminho(indice)%distancia
+    			corrente = indice
+    		END IF
+    	END DO
+    	caminho(corrente)%processado = '1'
     END DO
 
     PRINT *, 'Caminho mais curto: '
-
-    l = destino
+    indice = destino
     PRINT *, destino
-    DO
-        IF (l == origem) EXIT
-        PRINT *, caminho(l)%anterior
-        l = caminho(l)%anterior
-    END DO
-    PRINT *, 'Distância = ', caminho(destino)%distancia
 
-    DEALLOCATE(matriz)
+    DO
+        IF (indice == origem) EXIT
+        PRINT *, caminho(indice)%anterior
+        indice = caminho(indice)%anterior
+    END DO
+
+    PRINT *, 'Distância: ', caminho(destino)%distancia
+    DEALLOCATE(MatrizAdj)
     DEALLOCATE(caminho)
 END
