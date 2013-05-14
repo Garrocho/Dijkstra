@@ -74,17 +74,15 @@ program Dijkistra
     
     ! inicialização do vetor de caminhos mais curtos com valores default
     allocate(caminho_curto(MAXIMO))
-    indice = 1
-    do
-    	if (indice > MAXIMO) exit 
+
+    DO indice = 1, MAXIMO 
         caminho_curto(indice)%anterior = -1
         caminho_curto(indice)%distancia = INFINITO
-        caminho_curto(indice)%proc = 'nao_proc'
-        indice = indice + 1
-    end do
+        caminho_curto(indice)%proc = '0'
+    END DO
     
     caminho_curto(origem)%distancia = 0
-    caminho_curto(origem)%proc = 'proc'
+    caminho_curto(origem)%proc = '1'
     
     ! --> Cálculo do caminho mais curto
     aux = origem
@@ -104,7 +102,7 @@ program Dijkistra
 			if(indice > tamanho) exit
 			
 			!verifica se o nodo atual não é o nodo de origem ou se o nodo atual ainda não foi proc
-			if ((matriz(aux,indice) /= INFINITO).and.(matriz(aux,indice) /= 0).and.(caminho_curto(indice)%proc == 'nao_proc')) then
+			if ((matriz(aux,indice) /= INFINITO).and.(matriz(aux,indice) /= 0).and.(caminho_curto(indice)%proc == '0')) then
 				!verifica se a distância do nodo até a origem é maior que a distância de nodo vizinho + a distância
 				!entre o nodo atual até o nodo anterior
 				if (caminho_curto(aux)%distancia + matriz(aux,indice) < caminho_curto(indice)%distancia) then
@@ -123,13 +121,13 @@ program Dijkistra
     		
     		if(indice > tamanho) exit
     		!procura o nodo com menor distância para marcá-lo como proc
-    		if( (caminho_curto(indice)%proc == 'nao_proc') .and. ((caminho_curto(indice)%distancia < minimo)) ) then
+    		if( (caminho_curto(indice)%proc == '0') .and. ((caminho_curto(indice)%distancia < minimo)) ) then
     			minimo = caminho_curto(indice)%distancia
     			aux = indice
     		end if
     		indice = indice + 1
     	end do !3
-    	caminho_curto(aux)%proc = 'proc'
+    	caminho_curto(aux)%proc = '1'
 
     end do !1
 
