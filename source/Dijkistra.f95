@@ -5,12 +5,9 @@ program Dijkistra
     INTEGER, PARAMETER :: INF=2**30, MAXI = 500
     CHARACTER (LEN=32) :: argumento, arquivo
     CHARACTER*1200 :: dados_linha
-
     TYPE no
-        INTEGER :: anterior, distancia
-        CHARACTER*15 :: processado
+        INTEGER :: anterior, distancia, processado
     END TYPE
-
     TYPE (no), DIMENSION(:), ALLOCATABLE :: caminho
     
     tamanho = IARGC()
@@ -54,48 +51,48 @@ program Dijkistra
 
                 READ(dados_linha(pos1:pos1+pos2-2), '(i10)') MatrizAdj(linha, tamanho)
                 tamanho = tamanho + 1
-                pos1 = pos2+pos1
+                pos1 = pos2 + pos1
              END DO
 
              linha = linha + 1
         END DO
 
     ELSE
-        PRINT *,'Arquivo Inexistente...  ', arquivo
+        PRINT *, 'Arquivo Inexistente...  ', arquivo
         STOP
     END IF
 
     CLOSE(12)
+    
+    WRITE(*, *) tamanho
 
-    IF ((tamanho > origem).OR.(origem < 1).OR.(tamanho > destino).OR.(destino < 1)) THEN
-        PRINT *,'Nó de Origem ou Destino Inválido...  '
+    IF ((origem > tamanho).OR.(origem < 1).OR.(destino > tamanho).OR.(destino < 1)) THEN
+        PRINT *, 'Nó de Origem ou Destino Inválido...  '
         STOP
     END IF
-
+    
     ALLOCATE(caminho(tamanho))
 
     DO indice = 1, tamanho
         caminho(indice)%anterior = -1
         caminho(indice)%distancia = INF
-        caminho(indice)%processado = '0'
+        caminho(indice)%processado = 0
     END DO
 
     caminho(origem)%distancia = 0
-    caminho(origem)%processado = '1'
+    caminho(origem)%processado = 1
 
     corrente = origem
     linha = 1
     coluna = 1
-    pos1 = 1
-    pos2 = 1
 
     DO
     	IF (corrente == destino) EXIT
     	DO indice = 1, tamanho
-			IF ((MatrizAdj(corrente,indice) /= INF).AND.(MatrizAdj(corrente,indice) /= 0).AND.(caminho(indice)%processado == '0')) THEN
-				IF (caminho(corrente)%distancia + MatrizAdj(corrente,indice) < caminho(indice)%distancia) THEN
+			IF ((MatrizAdj(corrente, indice) /= INF).AND.(MatrizAdj(corrente, indice) /= 0).AND.(caminho(indice)%processado == 0)) THEN
+				IF (caminho(corrente)%distancia + MatrizAdj(corrente, indice) < caminho(indice)%distancia) THEN
 					caminho(indice)%anterior = corrente
-					caminho(indice)%distancia = caminho(corrente)%distancia + MatrizAdj(corrente,indice)
+					caminho(indice)%distancia = caminho(corrente)%distancia + MatrizAdj(corrente, indice)
 				END IF
 			END IF
     	END DO
@@ -104,12 +101,12 @@ program Dijkistra
     	menor_distancia = INF
 
     	DO indice = 1, tamanho
-    		IF ((caminho(indice)%processado == '0') .AND. ((caminho(indice)%distancia < menor_distancia)) ) THEN
+    		IF ((caminho(indice)%processado == 0) .AND. ((caminho(indice)%distancia < menor_distancia)) ) THEN
     			menor_distancia = caminho(indice)%distancia
     			corrente = indice
     		END IF
     	END DO
-    	caminho(corrente)%processado = '1'
+    	caminho(corrente)%processado = 1
     END DO
 
     PRINT *, 'Caminho mais curto: '
