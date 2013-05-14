@@ -2,14 +2,14 @@ program Dijkistra
 
     INTEGER:: linha, coluna, verifica, pos1, pos2, corrente, origem, destino, menor_distancia, indice, tamanho
     INTEGER, DIMENSION(:,:), ALLOCATABLE:: MatrizAdj
-    INTEGER, PARAMETER :: INF=2**30, MAXI = 500
+    INTEGER, PARAMETER :: INF=2**30
     CHARACTER (LEN=32) :: argumento, arquivo
     CHARACTER*1200 :: dados_linha
     TYPE no
-        INTEGER :: anterior, distancia, processado
+        INTEGER :: no_anterior, distancia, processado
     END TYPE
     TYPE (no), DIMENSION(:), ALLOCATABLE :: caminho
-    
+
     tamanho = IARGC()
     IF (tamanho == 3) THEN
         CALL GETARG(1, argumento)
@@ -19,7 +19,7 @@ program Dijkistra
         CALL GETARG(3, argumento)
         READ(argumento(1:), '(i10)') destino
     ELSE
-        PRINT*, 'Argumentos Inválidos... <Endereço da MatrizAdj> <Nó de Origem> <Nó de Destino>'
+        PRINT*, 'Argumentos Inválidos... <Endereço da Matriz> <Nó de Origem> <Nó de Destino>'
         STOP
     END IF
 
@@ -27,7 +27,7 @@ program Dijkistra
 
     IF (verifica == 0) THEN
 
-        ALLOCATE(MatrizAdj(MAXI,MAXI))
+        ALLOCATE(MatrizAdj(500, 500))
 
         linha = 1
         coluna = 1
@@ -70,11 +70,11 @@ program Dijkistra
         PRINT *, 'Nó de Origem ou Destino Inválido...  '
         STOP
     END IF
-    
+
     ALLOCATE(caminho(tamanho))
 
     DO indice = 1, tamanho
-        caminho(indice)%anterior = -1
+        caminho(indice)%no_anterior = -1
         caminho(indice)%distancia = INF
         caminho(indice)%processado = 0
     END DO
@@ -91,7 +91,7 @@ program Dijkistra
     	DO indice = 1, tamanho
 			IF ((MatrizAdj(corrente, indice) /= INF).AND.(MatrizAdj(corrente, indice) /= 0).AND.(caminho(indice)%processado == 0)) THEN
 				IF (caminho(corrente)%distancia + MatrizAdj(corrente, indice) < caminho(indice)%distancia) THEN
-					caminho(indice)%anterior = corrente
+					caminho(indice)%no_anterior = corrente
 					caminho(indice)%distancia = caminho(corrente)%distancia + MatrizAdj(corrente, indice)
 				END IF
 			END IF
@@ -109,17 +109,17 @@ program Dijkistra
     	caminho(corrente)%processado = 1
     END DO
 
-    PRINT *, 'Caminho mais curto: '
+    PRINT *, 'caminho mais curto: '
     indice = destino
     PRINT *, destino
 
     DO
         IF (indice == origem) EXIT
-        PRINT *, caminho(indice)%anterior
-        indice = caminho(indice)%anterior
+        PRINT *, caminho(indice)%no_anterior
+        indice = caminho(indice)%no_anterior
     END DO
 
-    PRINT *, 'Distância: ', caminho(destino)%distancia
+    PRINT *, 'distanciaância: ', caminho(destino)%distancia
     DEALLOCATE(MatrizAdj)
     DEALLOCATE(caminho)
 END
