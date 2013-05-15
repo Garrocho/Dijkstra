@@ -86,7 +86,7 @@ program Dijkistra
         IF (corrente == destino) EXIT
 
         DO indice = 1, tamanho
-            IF ((matriz(corrente, indice) /= 0).AND.(caminho(indice)%processado == 0)) THEN
+            IF (caminho(indice)%processado == 0) THEN
                 IF (caminho(corrente)%distancia + matriz(corrente, indice) < caminho(indice)%distancia) THEN
                     caminho(indice)%antecessor = corrente
                     caminho(indice)%distancia = caminho(corrente)%distancia + matriz(corrente, indice)
