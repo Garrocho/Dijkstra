@@ -2,7 +2,7 @@
 ! @contact: charles.garrocho@gmail.com
 ! @copyright: (C) 2013 Fortran Software Open Source
 
-program Dijkistra
+PROGRAM Dijkistra
 
     INTEGER :: INF=2**30, origem, destino, corrente, tamanho, menor_distancia, linha, coluna, verifica, indice, pos, pos_espaco
     INTEGER, DIMENSION(:, :), ALLOCATABLE :: matriz
