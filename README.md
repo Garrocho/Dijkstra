@@ -10,3 +10,8 @@ o _MyCurrentIP_ obtem o ip atual do dispositivo móvel e exibe para o usuário o
 
 ## Desenvolvedor #
 Charles Tim Batista Garrocho
+
+## Screenshots #
+### Tela Saida dos Dados no Terminal:
+
+![alt text](https://raw.github.com/CharlesGarrocho/MyCurrentIP/master/samples/tela_saida_dados.png "Tela Saida dos Dados no Terminal")
