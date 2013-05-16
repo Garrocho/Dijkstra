@@ -4,10 +4,10 @@
 
 PROGRAM Dijkistra
 
-    INTEGER :: INF=2**30, origem, destino, corrente, tamanho, menor_distancia, linha, coluna, verifica, indice, pos, pos_espaco
+    INTEGER :: INF=1000000, origem, destino, corrente, tamanho, menor_distancia, linha, coluna, verifica, indice, pos, pos_espaco
     INTEGER, DIMENSION(:, :), ALLOCATABLE :: matriz
     CHARACTER (LEN=32) :: argumento, arquivo
-    CHARACTER*2000 :: dados_linha
+    CHARACTER*3000 :: dados_linha
     TYPE no
         INTEGER :: antecessor, distancia, processado
     END TYPE
